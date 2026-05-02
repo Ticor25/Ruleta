@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Ruleta Windows V2</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    margin-top: 50px;
+    background: #111;
+    color: white;
+}
+
+#ruleta {
+    margin: 20px auto;
+    padding: 20px;
+    width: 360px;
+    border: 2px solid #444;
+    border-radius: 10px;
+    background: #222;
+    transition: 0.2s;
+}
+
+#ruleta img {
+    width: 107px;
+    height: 100px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+#nombre {
+    font-size: 22px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#estado {
+    font-size: 14px;
+    color: #aaa;
+    margin-top: 5px;
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #0078d7;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎡 Ruleta Windows V2</h2>
+
+<div id="ruleta">
+    <img id="logo" src="" alt="">
+    <div id="nombre">Presiona girar</div>
+    <div id="estado">---</div>
+</div>
+
+<button onclick="girar()">Girar</button>
+
+<audio id="tick" src="tick.mp3"></audio>
+
+<script>
+const sistemas = [
+    {nombre:"Windows 95",logo:"img/95.png"},
+    {nombre:"Windows 98",logo:"img/98.png"},
+    {nombre:"Windows 2000",logo:"img/2000.png"},
+    {nombre:"Windows XP",logo:"img/xp.png"},
+    {nombre:"Windows Vista",logo:"img/vista.png"},
+    {nombre:"Windows Neptune",logo:"img/neptune.png"},
+    {nombre:"Windows Earth",logo:"img/earth.png"},
+    {nombre:"Windows 7",logo:"img/7.png"},
+    {nombre:"Windows 8",logo:"img/8.png"},
+    {nombre:"Windows 8.1",logo:"img/8.1.png"}
+];
+
+let activo = false;
+let ultimo = -1;
+
+function girar() {
+    if (activo) return;
+    activo = true;
+
+    let vueltas = 0;
+    let velocidad = 50;
+
+    const nombre = document.getElementById("nombre");
+    const estado = document.getElementById("estado");
+    const logo = document.getElementById("logo");
+    const sonido = document.getElementById("tick");
+
+    function paso() {
+
+        // 🎯 evitar repetición inmediata
+        let i;
+        do {
+            i = (Math.random() * sistemas.length) | 0;
+        } while (i === ultimo);
+
+        const elegido = sistemas[i];
+
+        nombre.textContent = elegido.nombre;
+        logo.src = elegido.logo;
+        estado.textContent = "Girando...";
+
+        sonido.pause();
+        sonido.currentTime = 0;
+        sonido.play().catch(()=>{});
+
+        vueltas++;
+
+        // 🎡 desaceleración suave real
+        if (vueltas < 15) velocidad = 60;
+        else if (vueltas < 25) velocidad = 120;
+        else if (vueltas < 35) velocidad = 180;
+        else velocidad = 260;
+
+        if (vueltas < 40) {
+            setTimeout(paso, velocidad);
+        } else {
+            activo = false;
+            ultimo = i;
+
+            nombre.textContent = "🎉 " + elegido.nombre;
+
+            if (elegido.nombre === "Windows Earth") {
+                estado.textContent = "🌿 Modo naturaleza activado";
+                document.body.style.background = "linear-gradient(#00aa00, #001100)";
+            } 
+            else if (elegido.nombre === "Windows XP") {
+                estado.textContent = "💻 Modo clásico XP";
+                document.body.style.background = "#003366";
+            } 
+            else {
+                estado.textContent = "Sistema normal";
+                document.body.style.background = "#111";
+            }
+        }
+    }
+
+    paso();
+}
+</script>
+
+</body>
+</html>
